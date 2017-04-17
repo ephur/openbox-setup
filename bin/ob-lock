@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/usr/bin/slock &
+sleep 5;
+/usr/bin/xset dpms force standby;

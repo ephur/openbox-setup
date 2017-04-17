@@ -1,0 +1,13 @@
+[main]
+; The API token from openweathermap, only makes use of 'free' level functions
+token = 
+; zip code of city to retrieve weather from
+zip_code = 90210
+; choices are imperial and metric, default is imperial, and metric will give metric units
+; but is not currently labelled right through the script
+units = imperial
+; if the openweather api location changes you can update this
+; conditions_url = 'http://api.openweathermap.org/data/2.5/weather'
+; forecasts_url = 'http://api.openweathermap.org/data/2.5/forecast'
+; optionally specify cache, otherwise it will be located in the same directory as config file
+; cache_file = /tmp/ob-weather.cache

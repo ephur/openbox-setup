@@ -1,0 +1,251 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
+
+# API Doc for openweathermap API: https://openweathermap.org/current
+
+import time
+import os
+import sys
+import ConfigParser
+import json
+import base64
+import requests
+
+CONFIG_FILE = os.environ['HOME'] + '/.config/openbox/ob-weather.ini'
+CACHE_FILE = os.environ['HOME'] + '/.config/openbox/ob-weather.cache'
+TOKEN = 'bd5285fa29ef62906dfc1e4d650879ec'
+UNITS = 'imperial'
+CONDITIONS_URL = 'http://api.openweathermap.org/data/2.5/weather'
+FORECAST_URL = 'http://api.openweathermap.org/data/2.5/forecast'
+DEG = "F"
+
+
+class CacheError(Exception):
+    """ A class to indicate couldn't get values from cache """
+    pass
+
+
+def parse_config(config_file):
+    """ parse a configuration file """
+    configobj = ConfigParser.SafeConfigParser()
+    parsed = configobj.read(config_file)
+    if CONFIG_FILE not in parsed:
+        print "Was not able to parse configuration file: %s" % (config_file)
+        sys.exit(1)
+
+    return configobj
+
+
+def getval(configobj, value, default=None, required=False, section="main"):
+    """ get a value from a configuration file """
+    try:
+        return configobj.get(section, value)
+    except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
+        if required is True:
+            print "Configuration error, value %s in section %s not defined" % (
+                value, section)
+            sys.exit(1)
+        else:
+            return default
+
+
+def get_cache(cache, api_url, params, expires):
+    """ get json data from cache instead of remote API """
+    try:
+        if time.time() - os.stat(cache).st_mtime > expires:
+            # The file is older than expires time so cache is not valid
+            raise CacheError
+        with open(cache) as cache_fileobj:
+            cache_data = json.load(cache_fileobj)
+        params['api_url'] = api_url
+        key = base64.b64encode(str(params))
+        try:
+            if time.time() - cache_data[key]['time'] > expires:
+                raise CacheError
+            else:
+                return cache_data[key]['data']
+        except KeyError:
+            # There's no cached data for the key
+            raise CacheError
+    except OSError:
+        # The cache file didn't exist
+        raise CacheError
+
+    raise CacheError
+
+
+def write_cache(cache, api_url, params, data):
+    """ write the response data to cache """
+    try:
+        with open(cache) as cache_fileobj:
+            cache_data = json.load(cache_fileobj)
+    except (ValueError, IOError):
+        # Couldn't read the cache so blow it away
+        cache_data = {}
+
+    params['api_url'] = api_url
+
+    # Update the cache
+    key = base64.b64encode(str(params))
+    cache_data[key] = {}
+    cache_data[key]['time'] = time.time()
+    cache_data[key]['data'] = data
+
+    with open(cache, 'w') as cache_fileobj:
+        json.dump(cache_data, cache_fileobj)
+
+
+def get_weather(zip_code, units, token, api_url, cache_file=None, expires=60):
+    """ get the weather information """
+    params = {'zip': zip_code,
+              'units': units,
+              'appid': token}
+    if cache_file is not None:
+        try:
+            response = get_cache(cache_file, api_url, params, expires=expires)
+        except CacheError:
+            response = requests.get(api_url, params=params)
+            write_cache(cache_file, api_url, params, response.json())
+    else:
+        response = requests.get(api_url, params=params)
+
+    try:
+        # The value came from library so return json encoded
+        return response.json()
+    except AttributeError:
+        # The value came from cache so return raw json
+        return response
+
+
+def parse_forecast(indata):
+    """ parse the forecast data """
+    data = {}
+
+    for i in indata['list']:
+        fday = get_time(i['dt'])
+        fday_num = fday.tm_yday
+        if fday_num not in data.keys():
+            data[fday_num] = {}
+        # Set the high temperature for todays forcast
+        try:
+            data[fday_num]['temp_max'] = max(data[fday_num]['temp_max'],
+                                             i['main']['temp_max'])
+        except KeyError:
+            data[fday_num]['temp_max'] = i['main']['temp_max']
+
+        # Set the low temperature for todays forcast
+        try:
+            data[fday_num]['temp_min'] = min(data[fday_num]['temp_max'],
+                                             i['main']['temp_min'])
+        except KeyError:
+            data[fday_num]['temp_min'] = i['main']['temp_min']
+
+        try:
+            data[fday_num][i['weather'][0]['main']] += 1
+        except KeyError:
+            data[fday_num][i['weather'][0]['main']] = 1
+
+    return data
+
+
+def forecast_ob_menu_items(forecast):
+    ob_menu_str = ""
+    for (k, v) in forecast.iteritems():
+        if k == get_time().tm_yday or k - get_time().tm_yday >= 4:
+            continue
+
+        forecast_date = time.strptime(str(get_time().tm_year) + str(k), "%Y%j")
+        ob_menu_str += "  <separator label=\"Forecast for %s\"/>\n" % (
+            time.strftime("%A %B %d", forecast_date))
+        ob_menu_str += "<item label=\"Low of %sF and a High of %sF\" />\n" % (
+            int(round(v['temp_min'])), int(round(v['temp_max'])))
+
+        conditions = None
+        for (x, y) in sorted(v.items(), key=lambda x: x[1], reverse=True):
+            if x.startswith("temp"):
+                continue
+            if conditions is None:
+                conditions = "Mostly %s" % (x)
+            else:
+                if "with some" in conditions:
+                    conditions += " and %s" % (x)
+                else:
+                    conditions += " with some %s" % (x)
+
+        ob_menu_str += "<item label=\"%s\" />\n" % (conditions)
+
+    return ob_menu_str
+
+
+def get_time(utc=time.time()):
+    """ get time object back from UTC stamp """
+    return time.localtime(utc)
+
+
+def get_time_str(utc):
+    """ get the pretty localtime from UTC timestamp """
+    timestr = time.strftime("%A, %B %d at %I:%M %p",
+                            time.localtime(utc))
+    return timestr
+
+
+def degToCompass(direction):
+    """ convert the wind degress to simple directions """
+    val = int((direction / 45) + .5)
+    text_directons = ["North", "Northeast", "East", "Southeast",
+                      "South", "Southwest", "West", "Northwest"]
+    return text_directons[(val % 8)]
+
+
+if __name__ == "__main__":
+    config = parse_config(CONFIG_FILE)
+    zip_code = getval(config, "zip_code", required=True)
+    token = getval(config, "token", required=True)
+    conditions_url = getval(config, "conditions_url", default=CONDITIONS_URL)
+    forecast_url = getval(config, "forecast_url", default=FORECAST_URL)
+    units = getval(config, "units", default=UNITS)
+    cache_file = getval(config, "cache_file", default=CACHE_FILE)
+
+    weather = get_weather(zip_code, units, token,
+                          conditions_url, cache_file=cache_file, expires=30)
+    forecast = parse_forecast(get_weather(zip_code, units, token,
+                                          forecast_url, cache_file=cache_file,
+                                          expires=1200))
+
+    # Get report data
+    city = weather['name']
+    weather_time = get_time_str(weather['dt'])
+    sunset_time = get_time_str(weather['sys']['sunset'])
+    sunrise_time = get_time_str(weather['sys']['sunrise'])
+    temps = {}
+    today = {}
+
+    for (k, v) in sorted(forecast.iteritems()):
+       if get_time(time.time()).tm_yday == k:
+            today['temp_max'] = v['temp_max']
+            today['temp_min'] = v['temp_min']
+            break
+
+    weather['main']['temp_max'] = max(today['temp_max'],
+                                      weather['main']['temp_max'])
+    weather['main']['temp_min'] = min(today['temp_min'],
+                                      weather['main']['temp_min'])
+
+    for i in ['temp', 'temp_max', 'temp_min']:
+        temps[i] = unicode(int(round(weather['main'][i]))) + DEG
+
+    # Generate ob-menu
+    print "<openbox_pipe_menu>"
+    print "  <separator label='Current Conditions' />"
+    print "  <item label='%s and %s' />" % (
+        temps['temp'], weather['weather'][0]['description'])
+    print "  <item label='winds @ %sMPH from the %s' />" % (
+        weather['wind']['speed'], degToCompass(weather['wind']['deg']))
+    print "  <item label='Temperature range: %s to %s' />" % (
+        temps['temp_min'], temps['temp_max'])
+    print "  <separator />"
+    print "  <item label='Sunrise: %s' />" % (sunrise_time)
+    print "  <item label='Sunset: %s' />" % (sunset_time)
+    print forecast_ob_menu_items(forecast)
+    print "</openbox_pipe_menu>\n"

@@ -1,0 +1,22 @@
+ #!/bin/bash
+
+calRow() {
+  cal -h | gawk -v row=$1 '{ if (NR==row) { print $0 } }'
+}
+ 
+# Build the menu
+cat << EOFMENU
+<openbox_pipe_menu>
+  <separator label="`date +%A\ \ \ \ \ \ %I\:%M\ %p`" />
+  <item label="`date +%B\ %d,\ %Y`" />
+  <separator />
+  <item label="`calRow 2`" />
+  <item label="`calRow 3`" />
+  <item label="`calRow 4`" />
+  <item label="`calRow 5`" />
+  <item label="`calRow 6`" />
+  <item label="`calRow 7`" />
+  <item label="`calRow 8`" />
+</openbox_pipe_menu>
+
+EOFMENU

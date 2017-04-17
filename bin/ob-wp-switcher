@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
+
+import os
+import sys
+import ConfigParser
+import Xlib.display
+import subprocess
+
+CONFIG_FILE = os.environ['HOME'] + '/.config/openbox/ob-wp-switcher.ini'
+
+if __name__ == '__main__':
+    display = Xlib.display.Display()
+    screen = display.screen()
+
+    names = screen.root.get_full_property(display.get_atom(
+        '_NET_DESKTOP_NAMES'), 0).value.strip('\x00').split('\x00')
+
+    current = screen.root.get_full_property(
+        display.get_atom('_NET_CURRENT_DESKTOP'), 0).value[0]
+
+    config = ConfigParser.RawConfigParser()
+    if CONFIG_FILE not in config.read(CONFIG_FILE):
+        print "could not load config"
+        sys.exit(1)
+
+    wallpaper = config.get("main", "base_dir").rstrip("/")
+    wallpaper += "/" + config.get("wallpapers", names[current])
+
+    tool = []
+    tool.append(config.get("main", "tool"))
+    for opt in config.get("main", "tool_opts").split():
+        tool.append(opt)
+    tool.append(wallpaper)
+
+    print tool
+
+    subprocess.check_call(tool)
