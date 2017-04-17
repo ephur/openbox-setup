@@ -42,24 +42,23 @@ WIN + r  : run dmenu, a text based 'run' menu
 WIN + 1  :  switch to virtual desktop 1
 WIN + 2  :  switch to virtual desktop 2
 WIN + 3  :  switch to virtual desktop 3
+
+CTRL + ALT + RIGHT   :  Move to the next desktop
+CTRL + ALT + LEFT    :  Move to the previous desktop
+SHIFT + WIN + RIGHT  :  Move current window to the next desktop, follow + focus
+SHIFT + WIN + LEFT   :  Move current window to the previous desktop, follow + focus
+
+WIN + d          :  minimize all / show desktop
+SHIFT + WIN + d  :  minimize / iconify window
+CTRL + ALT + l   :  lock the desktop & sleep monitor (5 seconds before sleep)
+
+ALT + TAB          :  switch next window
+ALT + SHIFT + TAB  :  switch previous window
+ALT + F4           :  close window
+WIN + SPACE        :  show window menu
+
+WIN + RIGHT  :  move current window to right half of screen, 100% height, 50% width
+WIN + LEFT   :  move current window to left half of screen 100% height, 50% width
+WIN + UP     :  move current window to top of screen, 50% height, width unchanged
+WIN + DOWN   :  move current window to bottom half of screen, 50% height, width unchanged
 ```
-
-`CTRL + ALT + RIGHT   :  Move to the next desktop`
-`CTRL + ALT + LEFT    :  Move to the previous desktop`
-`SHIFT + WIN + RIGHT  :  Move current window to the next desktop, follow + focus`
-`SHIFT + WIN + LEFT   :  Move current window to the previous desktop, follow + focus`
-
-`WIN + d          :  minimize all / show desktop`
-`SHIFT + WIN + d  :  minimize / iconify window`
-`CTRL + ALT + l   :  lock the desktop & sleep monitor (5 seconds before sleep)`
-
-`ALT + TAB          :  switch next window`
-`ALT + SHIFT + TAB  :  switch previous window`
-`ALT + F4           :  close window `
-`WIN + SPACE        :  show window menu`
-
-`WIN + RIGHT  :  move current window to right half of screen, 100% height, 50% width`
-`WIN + LEFT   :  move current window to left half of screen 100% height, 50% width`
-`WIN + UP     :  move current window to top of screen, 50% height, width unchanged`
-`WIN + DOWN   :  move current window to bottom half of screen, 50% height, width unchanged`
-
