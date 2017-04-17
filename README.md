@@ -1,8 +1,6 @@
 # OpenBox Config & Tools
 
-Collection of Scripts / Configs to make openbox behave how I want it in 2017...
-
-I am not a fan of all the heavyweight desktops. Modern window managers/desktop environments provide a lot of functionality but 
+Collection of Scripts / Configs to make openbox behave how I want it in 2017... I recently moved back to Linux from OSX on my main desktop (much faster hardware...) and am still not a fan of unity, and other heavy weight window managers. I tried several, and while a lot of the touches are nice they are either buggy or slow (or even worse a combination of the two). So I went back to my old tried and true favorite, openbox. Most of the resources I could find for configuration were quite dated or 404's. Just putting this here for quick reference.
 
 ### Requirements
 
