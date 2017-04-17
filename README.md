@@ -36,11 +36,13 @@ This was a text snipped I found somewhere via a google, fixed the cal output and
 
 There are several key bindings setup for managing windows/desktops with this configuration. I find it very handy to be able to manage window positions in a 4x4 grid with the Win + Arrow keys. 
 
-`WIN + r  : run dmenu, a text based 'run' menu`
+```
+WIN + r  : run dmenu, a text based 'run' menu
 
-`WIN + 1  :  switch to virtual desktop 1`
-`WIN + 2  :  switch to virtual desktop 2`
-`WIN + 3  :  switch to virtual desktop 3`
+WIN + 1  :  switch to virtual desktop 1
+WIN + 2  :  switch to virtual desktop 2
+WIN + 3  :  switch to virtual desktop 3
+```
 
 `CTRL + ALT + RIGHT   :  Move to the next desktop`
 `CTRL + ALT + LEFT    :  Move to the previous desktop`
