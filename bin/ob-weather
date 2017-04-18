@@ -96,7 +96,7 @@ def write_cache(cache, api_url, params, data):
         json.dump(cache_data, cache_fileobj)
 
 
-def get_weather(zip_code, units, token, api_url, cache_file=None, expires=60):
+def get_weather(zip_code, units, token, api_url, cache_file=None, expires=180):
     """ get the weather information """
     params = {'zip': zip_code,
               'units': units,
@@ -105,7 +105,7 @@ def get_weather(zip_code, units, token, api_url, cache_file=None, expires=60):
         try:
             response = get_cache(cache_file, api_url, params, expires=expires)
         except CacheError:
-            response = requests.get(api_url, params=params)
+            response = requests.get(api_url, params=params, timeout=5)
             write_cache(cache_file, api_url, params, response.json())
     else:
         response = requests.get(api_url, params=params)

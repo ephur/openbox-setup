@@ -2,13 +2,16 @@
 base_dir = /home/user/Pictures/Backgrounds
 ; the image base_dir + imagename will be passed as the final paramater to tool/opts below
 tool = /usr/bin/nitrogen
-tool_opts = --set-scaled 
+tool_opts = --set-scaled
+; it takes about 1/10 of the time to set an image that already matches the desktop size
+; so save the images to desktop size and modify the option
+tool_opts = --set-centered
 
 [wallpapers]
 ; These are the names of the virtual desktops, this config works with 
 ; the openbox config in this repository, but if you name or have different 
 ; arrangements the key is the virtual desktop name
-Left = empty_country_road-wallpaper-2560x1440.jpg
-Main = Red-Tears-4K-Anime-Wallpapers.jpg
+Left = optimized/red-alice
+Main = optimized/red-tears.jpg
 Right = wallmap.jpg
 

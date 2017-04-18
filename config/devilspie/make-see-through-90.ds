@@ -1,0 +1,11 @@
+; generated_rule make-see-through
+( if 
+  ( begin 
+    ( or 
+      ( contains ( application_name ) "Sublime" )
+    )
+  ) 
+  ( begin 
+    ( opacity 90 )
+  )
+)

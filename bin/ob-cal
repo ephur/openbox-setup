@@ -1,7 +1,11 @@
- #!/bin/bash
+#!/bin/bash
+
+# Make the for loop work right from calendar
+IFS="
+"
 
 calRow() {
-  cal -h | gawk -v row=$1 '{ if (NR==row) { print $0 } }'
+  /usr/bin/cal -h | gawk -v row=$1 '{ if (NR==row) { print $0 } }'
 }
  
 # Build the menu
@@ -17,6 +21,13 @@ cat << EOFMENU
   <item label="`calRow 6`" />
   <item label="`calRow 7`" />
   <item label="`calRow 8`" />
-</openbox_pipe_menu>
-
 EOFMENU
+
+echo "  <separator label=\"on this day in history\" />"
+
+
+for line in `/usr/bin/calendar -A0`; do
+  echo "  <item label=\"${line}\" />"
+done
+echo "</openbox_pipe_menu>"
+ 

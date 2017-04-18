@@ -4,14 +4,23 @@ Collection of Scripts / Configs to make openbox behave how I want it in 2017... 
 
 ### Requirements
 
-Currently requires the following packages (ubuntu)
-* openbox of course
+Currently requires the following packages (ubuntu):
+* openbox
 * tint2
 * suckless-tools
+* xcompmgr
 
 Currently requires the following python modules:
 * requests (for weather API service)
 * xlib (for wall paper swapping)
+
+Optional Stuff:
+* devilspie
+
+### Configs
+##### config/devilspie/*
+
+Using devilspie to set transparency on windows that might not otherwise be transparent. 
 
 ### Scripts
 ##### ob-lock
