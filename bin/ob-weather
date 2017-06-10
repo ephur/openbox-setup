@@ -14,7 +14,6 @@ import requests
 
 CONFIG_FILE = os.environ['HOME'] + '/.config/openbox/ob-weather.ini'
 CACHE_FILE = os.environ['HOME'] + '/.config/openbox/ob-weather.cache'
-TOKEN = 'bd5285fa29ef62906dfc1e4d650879ec'
 UNITS = 'imperial'
 CONDITIONS_URL = 'http://api.openweathermap.org/data/2.5/weather'
 FORECAST_URL = 'http://api.openweathermap.org/data/2.5/forecast'
